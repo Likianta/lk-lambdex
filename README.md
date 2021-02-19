@@ -65,7 +65,7 @@ To use it, simply import 'lambdex' from it:
 ```py
 from lk_lambdex import lambdex
 
-add = lambdex((), '''
+hello = lambdex((), '''
     print('hello world')
 ''')
 ```
@@ -124,7 +124,7 @@ print(fib(1))  # -> 1
 ```py
 from lk_lambdex import lambdex
 
-greeting = lambdex(('n'), '''
+greeting = lambdex((), '''
     def say_hello():
         print('hello')
     say_hello()
