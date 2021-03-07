@@ -72,7 +72,7 @@ hello = lambdex((), '''
 
 # Advanced Usage
 
-## Trick of `locals`
+## Trick of "Context Variables"
 
 ```py
 from lk_lambdex import lambdex
@@ -88,8 +88,9 @@ class AAA:
         ''')
 
         # It is tedious if we have to pass many key-value with the same name.
-        # Here we use `locals()` (a Python built-in function) instead.
-        lamb2 = lambdex((locals()), '''
+        # In lk-lambdex 1.0.0 it supports auto detect context variables.
+        # Just coding like this:
+        lamb2 = lambdex((), '''
             print(self.name)
             print(age)
         ''')

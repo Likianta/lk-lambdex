@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lk-lambdex"
-version = "0.1.2"
+version = "1.0.0"
 description = "A simple way to compose multi-line anonymous function in Python."
 authors = ["Likianta <likianta@foxmail.com>"]
 license = "MIT"

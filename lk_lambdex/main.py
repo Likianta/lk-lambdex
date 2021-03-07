@@ -1,4 +1,6 @@
 import traceback
+# noinspection PyProtectedMember
+from sys import _getframe as getframe
 from textwrap import dedent
 from typing import Union
 
@@ -11,19 +13,20 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
             e.g. ('x')
                  ('x', 'y')
                  ('x', 'y', {'factor': 1000})
-                 ('x', 'y', locals())  # recommend
-                 ({'factor': 1000})
-                 (locals())  # recommend
+                            ^ put 'kwargs' as a dict in the last pos of args
             tip: dict
         code: long str. you can start with indent, we'll deindent it then.
 
     References:
-        https://github.com/likianta/lambdex/examples/03_fibonacci.py
-        https://github.com/likianta/lambdex/examples/04_globals_and_locals.py
+        https://github.com/likianta/lambdex/examples
 
     Usages:
         See `https://github.com/likianta/lambdex/examples`
     """
+    _last_frame = getframe(1)
+    #   refer: https://www.cnblogs.com/LegendOfBFS/p/3500227.html
+    context = _last_frame.f_locals  # type: dict
+    
     # 1. args_
     if args:
         if isinstance(args, str):
@@ -39,7 +42,8 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
         args_, globals_ = '', {}
     
     # 2. globals_
-    if kwargs: globals_.update(kwargs)
+    globals_.update(context)
+    globals_.update(kwargs)
     globals_.update({
         '__source_code': (code := dedent(code).split('\n')),
         'traceback'    : traceback,
@@ -95,7 +99,7 @@ def _exec(code: str, globals_: dict, ret='RESULT'):
             y = 2
             RESULT = x + y
         ''')
-        print(a())  # -> 3
+        print(a)  # -> 3
 
         # == 2. with args ==
         b = lambda x, y: _exec('''
