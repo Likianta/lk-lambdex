@@ -1,7 +1,7 @@
-import traceback
 # noinspection PyProtectedMember
 from sys import _getframe as getframe
 from textwrap import dedent
+from traceback import walk_tb
 from typing import Union
 
 
@@ -26,7 +26,9 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
     _last_frame = getframe(1)
     #   refer: https://www.cnblogs.com/LegendOfBFS/p/3500227.html
     context = _last_frame.f_locals  # type: dict
-    
+
+    dedented_code_lines = dedent(code).split('\n')
+
     # 1. args_
     if args:
         if isinstance(args, str):
@@ -42,11 +44,13 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
         args_, globals_ = '', {}
     
     # 2. globals_
+    globals_, tmp_ = {}, globals_
     globals_.update(context)
     globals_.update(kwargs)
+    globals_.update(tmp_)
     globals_.update({
-        '__source_code': (code := dedent(code).split('\n')),
-        'traceback'    : traceback,
+        '__lambdex_source_code'   : dedented_code_lines,
+        '__lambdex_walk_traceback': walk_tb,
     })
     
     # 3. code_
@@ -64,7 +68,7 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
             try:
                 return somefunc({args})
             except Exception as e:
-                for frame, lineno in traceback.walk_tb(e.__traceback__):
+                for frame, lineno in __lambdex_walk_traceback(e.__traceback__):
                     lineno -= 5
                     #   number 5 counts the number of lines from `def __lambdex_
                     #   func_wrapper` to `{{body}}`
@@ -80,7 +84,7 @@ def lambdex(args: Union[tuple, str, dict], code: str, **kwargs):
         LAMBDEX_RESULT = __lambdex_func_wrapper
     ''').format(
         args=args_,
-        body='\n        '.join(code)
+        body='\n        '.join(dedented_code_lines)
         #       ^------^ 8 whitespaces, follows the indent of '{body}'
     )
     
